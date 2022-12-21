@@ -1,8 +1,6 @@
 from abc import abstractmethod
 
 import oracledb
-from config import DB_USER, DB_PASSWORD, DB_HOST, DB_PORT
-
 
 class Connector:
     def __init__(self, user: str, password: str, host: str, port: int):

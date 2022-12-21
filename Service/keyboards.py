@@ -10,7 +10,7 @@ class ReplyKeyboard:
 
         make_offer: str = "Разместить заказ💰"
         show_offers: str = "Посмотреть заказы🕮"
-        take_offer: str = "Разместить заказ💰"
+        take_offer: str = "Взять заказ💰"
 
         to_menu: str = "Вернуться к меню"
 
@@ -21,7 +21,7 @@ class ReplyKeyboard:
         .row(KeyboardButton(Text.make_offer), KeyboardButton(Text.show_offers))
 
     TAKER = ReplyKeyboardMarkup(resize_keyboard=True) \
-        .row(KeyboardButton(Text.make_offer), KeyboardButton(Text.show_offers))
+        .row(KeyboardButton(Text.take_offer), KeyboardButton(Text.show_offers))
 
 
 class InlineKeyboard:
