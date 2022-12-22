@@ -3,8 +3,8 @@ from abc import abstractmethod
 import oracledb
 
 class Connector:
-    def __init__(self, user: str, password: str, host: str, port: int):
-        self.__pool = oracledb.create_pool(user=user, password=password, host=host, port=port)
+    def __init__(self, user: str = None, password: str = None, host: str = None, port: int = None, dsn: str = None):
+        self.__pool = oracledb.create_pool(user=user, password=password, host=host, port=port, dsn=dsn)
 
     def connect(self):
         return self.__pool.acquire()
