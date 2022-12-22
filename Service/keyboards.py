@@ -12,7 +12,8 @@ class ReplyKeyboard:
         show_offers: str = "Посмотреть заказы🕮"
         take_offer: str = "Взять заказ💰"
 
-        to_menu: str = "Вернуться к меню"
+        to_menu: str = "Вернуться к меню🏠"
+        cancel: str = "Отмена🔙"
 
     CHOOSE_SIDE = ReplyKeyboardMarkup(resize_keyboard=True) \
         .row(KeyboardButton(Text.be_maker), KeyboardButton(Text.be_taker))
@@ -24,6 +25,8 @@ class ReplyKeyboard:
     TAKER = ReplyKeyboardMarkup(resize_keyboard=True) \
         .row(KeyboardButton(Text.take_offer), KeyboardButton(Text.show_offers)) \
         .row(KeyboardButton(Text.to_menu))
+
+    CANCEL = ReplyKeyboardMarkup(resize_keyboard=True).add(KeyboardButton(Text.cancel))
 
 
 class InlineKeyboard:
