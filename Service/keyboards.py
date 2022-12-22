@@ -18,10 +18,12 @@ class ReplyKeyboard:
         .row(KeyboardButton(Text.be_maker), KeyboardButton(Text.be_taker))
 
     MAKER = ReplyKeyboardMarkup(resize_keyboard=True) \
-        .row(KeyboardButton(Text.make_offer), KeyboardButton(Text.show_offers))
+        .row(KeyboardButton(Text.make_offer), KeyboardButton(Text.show_offers)) \
+        .row(KeyboardButton(Text.to_menu))
 
     TAKER = ReplyKeyboardMarkup(resize_keyboard=True) \
-        .row(KeyboardButton(Text.take_offer), KeyboardButton(Text.show_offers))
+        .row(KeyboardButton(Text.take_offer), KeyboardButton(Text.show_offers)) \
+        .row(KeyboardButton(Text.to_menu))
 
 
 class InlineKeyboard:
