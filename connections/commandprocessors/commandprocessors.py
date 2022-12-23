@@ -135,4 +135,42 @@ class RequirementCommandProcessor(CommandProcessor):
 
 
 class WeaponCommandProcessor(CommandProcessor):
-    pass
+    def create(self, killer_id: int, weapon_type: int, **kwargs):
+        if not killer_id:
+            raise ValueError("Killer cannot be empty")
+        if not weapon_type:
+            raise ValueError("Weapon type cannot be empty")
+        self.__connector.execute(
+            "INSERT INTO WEAPONS (KILLER_ID, TYPE_ID) "
+            "VALUES (:killer_id, :weapon_type)",
+            killer_id=killer_id,
+            weapon_type=weapon_type)
+
+    def update(self, id: int, *args, **kwargs):
+        if 0 > len(kwargs.values()) or len(kwargs.values()) >= 3:
+            raise ValueError("Invalid number of arguments")
+        if set(kwargs.keys()) - {"killer_id", "weapon_type"}:
+            raise ValueError("Invalid arguments")
+        query = "UPDATE WEAPONS SET "
+        if "killer_id" in kwargs:
+            query += "KILLER_ID=:killer_id, "
+        if "weapon_type" in kwargs:
+            query += "TYPE_ID=:weapon_type"
+        query += " WHERE ID=:id"
+        self.__connector.execute(query, id=id, **kwargs)
+
+    def delete(self, id: int):
+        self.__connector.execute("DELETE FROM WEAPONS WHERE ID=:id", id=id)
+
+
+class LocationCommandProcessor(CommandProcessor):
+    def create(self, name: str):
+        self.__connector.execute("INSERT INTO LOCATIONS (NAME) VALUES (:name)", name=name)
+
+    def update(self, id: int, *args, **kwargs):
+        if "name" not in kwargs:
+            raise ValueError("Name cannot be empty")
+        self.__connector.execute("UPDATE LOCATIONS SET NAME=:name WHERE ID=:id", name=kwargs["name"], id=id)
+
+    def delete(self, id: int):
+        self.__connector.execute("DELETE FROM LOCATIONS WHERE ID=:id", id=id)
