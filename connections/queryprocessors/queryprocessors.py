@@ -19,6 +19,10 @@ class QueryProcessor:
     def get_by_id(self, id: int):
         pass
 
+    @abstractmethod
+    def get_view_by_id(self, id: int):
+        pass
+
 
 class MakerQueryProcessor(QueryProcessor):
     def get_all(self):
@@ -34,3 +38,43 @@ class TakerQueryProcessor(QueryProcessor):
 
     def get_by_id(self, id: int):
         return self.__connector.execute("SELECT * FROM TAKERS WHERE ID=:id", id=id)
+
+
+class VictimQueryProcessor(QueryProcessor):
+    def get_all(self):
+        return self.__connector.execute("SELECT * FROM VICTIMS")
+
+    def get_by_id(self, id: int):
+        return self.__connector.execute("SELECT * FROM VICTIMS WHERE ID=:id", id=id)
+
+    def get_view_by_id(self, id: int):
+        return self.__connector.execute("SELECT * FROM VICTIM_VIEW WHERE ID=:id", id=id)
+
+    def get_all_view(self):
+        return self.__connector.execute("SELECT * FROM VICTIM_VIEW")
+
+
+class OrderQueryProcessor(QueryProcessor):
+    def get_all(self):
+        return self.__connector.execute("SELECT * FROM ORDERS")
+
+    def get_by_id(self, id: int):
+        return self.__connector.execute("SELECT * FROM ORDERS WHERE ID=:id", id=id)
+
+    def get_by_maker_id(self, maker_id: int):
+        return self.__connector.execute("SELECT * FROM ORDERS WHERE MAKER_ID=:maker_id", maker_id=maker_id)
+
+    def get_by_taker_id(self, taker_id: int):
+        return self.__connector.execute("SELECT * FROM ORDERS WHERE TAKER_ID=:taker_id", taker_id=taker_id)
+
+    def get_view_by_maker_id(self, maker_id: int):
+        return self.__connector.execute("SELECT * FROM ORDER_VIEW WHERE MAKER_ID=:maker_id", maker_id=maker_id)
+
+    def get_view_by_taker_id(self, taker_id: int):
+        return self.__connector.execute("SELECT * FROM ORDER_VIEW WHERE TAKER_ID=:taker_id", taker_id=taker_id)
+
+    def get_view_by_id(self, id: int):
+        return self.__connector.execute("SELECT * FROM ORDER_VIEW WHERE ID=:id", id=id)
+
+    def get_all_view(self):
+        return self.__connector.execute("SELECT * FROM ORDER_VIEW")
