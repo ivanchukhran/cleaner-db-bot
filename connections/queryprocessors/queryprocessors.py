@@ -12,21 +12,25 @@ class QueryProcessor:
         pass
 
     @abstractmethod
+    def get_all_view(self):
+        pass
+
+    @abstractmethod
     def get_by_id(self, id: int):
         pass
 
 
 class MakerQueryProcessor(QueryProcessor):
     def get_all(self):
-        return self.__connector.execute("SELECT * FROM MAKER")
+        return self.__connector.execute("SELECT * FROM MAKERS")
 
     def get_by_id(self, id: int):
-        return self.__connector.execute("SELECT * FROM MAKER WHERE ID=:id", id=id)
+        return self.__connector.execute("SELECT * FROM MAKERS WHERE ID=:id", id=id)
 
 
 class TakerQueryProcessor(QueryProcessor):
     def get_all(self):
-        return self.__connector.execute("SELECT * FROM TAKER")
+        return self.__connector.execute("SELECT * FROM TAKERS")
 
     def get_by_id(self, id: int):
-        return self.__connector.execute("SELECT * FROM TAKER WHERE ID=:id", id=id)
+        return self.__connector.execute("SELECT * FROM TAKERS WHERE ID=:id", id=id)
