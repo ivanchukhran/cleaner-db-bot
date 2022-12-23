@@ -11,6 +11,7 @@ class ReplyKeyboard:
         make_offer: str = "Разместить заказ💰"
         show_offers: str = "Посмотреть заказы🕮"
         take_offer: str = "Взять заказ💰"
+        change_weapon: str = "Поменять оружие"
 
         to_menu: str = "Вернуться к меню🏠"
         cancel: str = "Отмена🔙"
@@ -24,7 +25,7 @@ class ReplyKeyboard:
 
     TAKER = ReplyKeyboardMarkup(resize_keyboard=True) \
         .row(KeyboardButton(Text.take_offer), KeyboardButton(Text.show_offers)) \
-        .row(KeyboardButton(Text.to_menu))
+        .row(KeyboardButton(Text.change_weapon), KeyboardButton(Text.to_menu))
 
     CANCEL = ReplyKeyboardMarkup(resize_keyboard=True).add(KeyboardButton(Text.cancel))
 

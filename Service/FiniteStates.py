@@ -7,3 +7,7 @@ class MakeOffer(StatesGroup):
     STATE_ADDRESS = State()
     STATE_ADDITIONAL = State()
     STATE_COST = State()
+
+
+class TakerState(StatesGroup):
+    STATE_WEAPON = State()
