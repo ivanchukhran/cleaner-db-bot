@@ -7,6 +7,10 @@ class CommandProcessor:
     def __init__(self, connector: Connector):
         self.__connector = connector
 
+    @property
+    def connector(self):
+        return self.__connector
+
     @abstractmethod
     def create(self, *args, **kwargs):
         pass
@@ -24,63 +28,79 @@ class MakerCommandProcessor(CommandProcessor):
     def create(self, name: str):
         if not name:
             raise ValueError("Name cannot be empty")
-        self.__connector.execute("INSERT INTO MAKERS (NAME) VALUES (:name)", name=name)
+        query = "BEGIN MAKERCR(:name); END;"
+        self.connector.execute_without_return(query,
+                                              name=name)
 
     def update(self, id: int, *args, **kwargs):
         if "name" not in kwargs:
             raise ValueError("Name cannot be empty")
-        self.__connector.execute("UPDATE MAKERS SET NAME=:name WHERE ID=:id", name=kwargs["name"], id=id)
+        self.connector.execute_without_return("UPDATE MAKERS SET NAME=:name WHERE ID=:id",
+                                              name=kwargs["name"],
+                                              id=id)
 
     def delete(self, id: int):
-        self.__connector.execute("DELETE FROM MAKERS WHERE ID=:id", id=id)
+        self.connector.execute_without_return("DELETE FROM MAKERS WHERE ID=:id",
+                                              id=id)
 
 
 class TakerCommandProcessor(CommandProcessor):
-    def create(self, name: str):
-        self.__connector.execute("INSERT INTO TAKERS (NAME) VALUES (:name)", name=name)
+    def create(self, name: str, weapon: str):
+        if not name:
+            raise ValueError("Name cannot be empty")
+        query = "BEGIN TAKERCR(:name, :weapon); END;"
+        self.connector.execute_without_return(query,
+                                              name=name,
+                                              weapon=weapon)
 
     def update(self, id: int, *args, **kwargs):
         if "name" not in kwargs:
             raise ValueError("Name cannot be empty")
-        self.__connector.execute("UPDATE TAKERS SET NAME=:name WHERE ID=:id", name=kwargs["name"], id=id)
+        self.connector.execute_without_return("UPDATE TAKERS SET NAME=:name WHERE ID=:id",
+                                              name=kwargs["name"],
+                                              id=id)
 
     def delete(self, id: int):
-        self.__connector.execute("DELETE FROM TAKERS WHERE ID=:id", id=id)
+        self.connector.execute_without_return("DELETE FROM TAKERS WHERE ID=:id",
+                                              id=id)
 
 
 class VictimCommandProcessor(CommandProcessor):
     def create(self, name: str):
-        self.__connector.execute("INSERT INTO VICTIMS (NAME) VALUES (:name)", name=name)
+        self.connector.execute_without_return("INSERT INTO VICTIMS (NAME) VALUES (:name)",
+                                              name=name)
 
     def update(self, id: int, *args, **kwargs):
         if "name" not in kwargs:
             raise ValueError("Name cannot be empty")
-        self.__connector.execute("UPDATE VICTIMS SET NAME=:name WHERE ID=:id", name=kwargs["name"], id=id)
+        self.connector.execute_without_return("UPDATE VICTIMS SET NAME=:name WHERE ID=:id",
+                                              name=kwargs["name"],
+                                              id=id)
 
     def delete(self, id: int):
-        self.__connector.execute("DELETE FROM VICTIMS WHERE ID=:id", id=id)
+        self.connector.execute_without_return("DELETE FROM VICTIMS WHERE ID=:id",
+                                              id=id)
 
 
 class OrderCommandProcessor(CommandProcessor):
-    def create(self, maker_id: int,
-               victim_id: int,
+    def create(self, maker: str,
+               victim: str,
                cost: int,
-               taker_id: int = None,
-               requirement_id: int = None):
-        if not maker_id:
+               location: str = None,
+               weapon: str = None):
+        if maker is None:
             raise ValueError("Maker cannot be empty")
-        if not victim_id:
+        if victim is None:
             raise ValueError("Victim cannot be empty")
-        if not cost:
+        if cost is None:
             raise ValueError("Cost cannot be empty")
-        self.__connector.execute(
-            "INSERT INTO ORDERS (MAKER_ID, VICTIM_ID, COST, TAKER_ID, REQUIREMENT_ID) "
-            "VALUES (:maker_id, :victim_id, :cost, :taker_id, :requirement_id)",
-            maker_id=maker_id,
-            victim_id=victim_id,
-            cost=cost,
-            taker_id=taker_id,
-            requirement_id=requirement_id)
+        query = "BEGIN ORDERING(:maker, :victim, :location, :weapon, :cost); END;"
+        self.connector.execute_without_return(query,
+                                              maker=maker,
+                                              victim=victim,
+                                              location=location,
+                                              weapon=weapon,
+                                              cost=cost)
 
     def update(self, id: int, *args, **kwargs):
         if 0 > len(kwargs.values()) or len(kwargs.values()) >= 5:
@@ -99,10 +119,12 @@ class OrderCommandProcessor(CommandProcessor):
         if "requirement_id" in kwargs:
             query += "REQUIREMENT_ID=:requirement_id"
         query += " WHERE ID=:id"
-        self.__connector.execute(query, id=id, **kwargs)
+        self.connector.execute_without_return(query,
+                                              id=id,
+                                              **kwargs)
 
     def delete(self, id: int):
-        self.__connector.execute("DELETE FROM ORDERS WHERE ID=:id", id=id)
+        self.connector.execute_without_return("DELETE FROM ORDERS WHERE ID=:id", id=id)
 
 
 class RequirementCommandProcessor(CommandProcessor):
@@ -111,7 +133,7 @@ class RequirementCommandProcessor(CommandProcessor):
             raise ValueError("Location cannot be empty")
         if not weapon_type_id:
             raise ValueError("Weapon type cannot be empty")
-        self.__connector.execute(
+        self.connector.execute_without_return(
             "INSERT INTO REQUIREMENTS (LOCATION_ID, WEAPON_TYPE_ID) "
             "VALUES (:location_id, :weapon_type_id)",
             location_id=location_id,
@@ -128,10 +150,10 @@ class RequirementCommandProcessor(CommandProcessor):
         if "weapon_type_id" in kwargs:
             query += "WEAPON_TYPE_ID=:weapon_type_id"
         query += " WHERE ID=:id"
-        self.__connector.execute(query, id=id, **kwargs)
+        self.connector.execute_without_return(query, id=id, **kwargs)
 
     def delete(self, id: int):
-        self.__connector.execute("DELETE FROM REQUIREMENTS WHERE ID=:id", id=id)
+        self.connector.execute_without_return("DELETE FROM REQUIREMENTS WHERE ID=:id", id=id)
 
 
 class WeaponCommandProcessor(CommandProcessor):
@@ -140,7 +162,7 @@ class WeaponCommandProcessor(CommandProcessor):
             raise ValueError("Killer cannot be empty")
         if not weapon_type:
             raise ValueError("Weapon type cannot be empty")
-        self.__connector.execute(
+        self.connector.execute_without_return(
             "INSERT INTO WEAPONS (KILLER_ID, TYPE_ID) "
             "VALUES (:killer_id, :weapon_type)",
             killer_id=killer_id,
@@ -157,20 +179,22 @@ class WeaponCommandProcessor(CommandProcessor):
         if "weapon_type" in kwargs:
             query += "TYPE_ID=:weapon_type"
         query += " WHERE ID=:id"
-        self.__connector.execute(query, id=id, **kwargs)
+        self.__connector.execute_without_return(query, id=id, **kwargs)
 
     def delete(self, id: int):
-        self.__connector.execute("DELETE FROM WEAPONS WHERE ID=:id", id=id)
+        self.connector.execute_without_return("DELETE FROM WEAPONS WHERE ID=:id", id=id)
 
 
 class LocationCommandProcessor(CommandProcessor):
     def create(self, name: str):
-        self.__connector.execute("INSERT INTO LOCATIONS (NAME) VALUES (:name)", name=name)
+        self.connector.execute_without_return("INSERT INTO LOCATIONS (NAME) VALUES (:name)", name=name)
 
     def update(self, id: int, *args, **kwargs):
         if "name" not in kwargs:
             raise ValueError("Name cannot be empty")
-        self.__connector.execute("UPDATE LOCATIONS SET NAME=:name WHERE ID=:id", name=kwargs["name"], id=id)
+        self.connector.execute_without_return("UPDATE LOCATIONS SET NAME=:name WHERE ID=:id",
+                                              name=kwargs["name"],
+                                              id=id)
 
     def delete(self, id: int):
-        self.__connector.execute("DELETE FROM LOCATIONS WHERE ID=:id", id=id)
+        self.connector.execute_without_return("DELETE FROM LOCATIONS WHERE ID=:id", id=id)
