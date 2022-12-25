@@ -49,26 +49,18 @@ async def process_write_location(message: types.Message, state: FSMContext):
     await MakeOffer.STATE_COST.set()
 
 
-async def process_write_cost(message: types.Message, state: FSMContext):
+async def process_write_offer(message: types.Message, state: FSMContext):
     if message.text.isnumeric():
-        await state.update_data(cost=int(message.text))
-        await message.answer("Добавьте дополнительную информацию по заказу:",
-                             reply_markup=ReplyKeyboard.CANCEL)
-        await MakeOffer.STATE_ADDITIONAL.set()
+        cost = int(message.text)
+        offer_data = await state.get_data()
+        # TODO write offer to database
+        await message.answer(
+            f"Ваш заказ на {offer_data['name']} с использованием {offer_data['weapon']} за {cost} выставлен на рынок",
+            reply_markup=ReplyKeyboard.MAKER)
+        await state.finish()
     else:
         await message.answer("Введенное значение не является числом, повторите еще раз",
                              reply_markup=ReplyKeyboard.CANCEL)
-
-
-async def process_write_offer(message: types.Message, state: FSMContext):
-    await state.update_data(description=message.text)
-
-    offer_data = await state.get_data()
-    # TODO write offer to database
-    await message.answer(
-        f"Ваш заказ на {offer_data['name']} с использованием {offer_data['weapon']} за {offer_data['cost']} выставлен на рынок",
-        reply_markup=ReplyKeyboard.MAKER)
-    await state.finish()
 
 
 async def cancel(message: types.Message, state: FSMContext):
@@ -98,9 +90,6 @@ def setup(dp: Dispatcher):
     dp.register_message_handler(process_write_location,
                                 content_types=['text'],
                                 state=MakeOffer.STATE_ADDRESS)
-    dp.register_message_handler(process_write_cost,
-                                content_types=['text'],
-                                state=MakeOffer.STATE_COST)
     dp.register_message_handler(process_write_offer,
                                 content_types=['text'],
-                                state=MakeOffer.STATE_ADDITIONAL)
+                                state=MakeOffer.STATE_COST)
