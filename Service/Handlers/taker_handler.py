@@ -1,5 +1,8 @@
 from aiogram import types, Dispatcher
 from Service import ReplyKeyboard, Texts
+from connections.connector import Connector
+from config import DB_PASSWORD, DB_USER, DB_DSN
+from connections.queryprocessors.queryprocessors import OrderQueryProcessor
 
 
 async def process_taker(message: types.Message):
