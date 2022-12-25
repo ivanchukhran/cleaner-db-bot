@@ -4,9 +4,18 @@ from aiogram.dispatcher import FSMContext
 from Service.FiniteStates import MakeOffer
 from Service import ReplyKeyboard, Texts
 
+from hashlib import sha1
+
+from config import DB_DSN, DB_USER, DB_PASSWORD
+from connections.connector import Connector
+from connections.commandprocessors.commandprocessors import MakerCommandProcessor
+
 
 async def process_maker(message: types.Message):
-    # TODO Write user to database as maker
+    conn = Connector(user=DB_USER, password=DB_PASSWORD, dsn=DB_DSN)
+    maker_cp = MakerCommandProcessor(conn)
+    name: str = sha1(str(message.from_user.id).encode("UTF-8")).hexdigest()
+    maker_cp.create(name)
     await message.reply(Texts.WELCOME_MAKER,
                         reply_markup=ReplyKeyboard.MAKER
                         )
