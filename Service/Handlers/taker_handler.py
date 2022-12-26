@@ -35,10 +35,18 @@ async def process_changing(message: types.Message, state: FSMContext):
     await state.finish()
 
 
-async def process_take_offer(message: types.Message):
-    # TODO write processor for listing and taking an offer
+async def process_take_offer(message: types.Message, state: FSMContext):
     await show_offers(message)
+    await TakerState.STATE_TAKE_ID.set()
     await message.reply(Texts.TAKE_OFFER,
+                        reply_markup=ReplyKeyboard.CANCEL
+                        )
+
+
+async def process_taked_offer(message: types.Message, state: FSMContext):
+    # TODO write processor for taking an offer
+    await state.finish()
+    await message.reply(Texts.TAKED_OFFER,
                         reply_markup=ReplyKeyboard.TAKER
                         )
 
@@ -54,10 +62,10 @@ async def show_offers(message: types.Message):
     order_qp = OrderQueryProcessor(Connector(user=DB_USER, password=DB_PASSWORD, dsn=DB_DSN))
     user_id = sha1(str(message.from_user.id).encode("UTF-8")).hexdigest()
     orders = order_qp.get_for_taker(user_id=user_id)
-    orders = [f"id: {order[0]}, " 
-              f"victim: {order[2]}, " 
-              f"cost: {order[4]}, " 
-              f"location: {order[5]}, " 
+    orders = [f"id: {order[0]}, "
+              f"victim: {order[2]}, "
+              f"cost: {order[4]}, "
+              f"location: {order[5]}, "
               f"weapon: {order[6]}"
               for order in orders]
     order_string = "\n".join(orders)
@@ -85,4 +93,7 @@ def setup(dp: Dispatcher):
                                 state=TakerState.STATE_WEAPON)
     dp.register_message_handler(show_offers,
                                 text=ReplyKeyboard.Text.show_offers_tk,
-                                content_types=['text'], )
+                                content_types=['text'])
+    dp.register_message_handler(process_taked_offer,
+                                content_types=['text'],
+                                state=TakerState.STATE_TAKE_ID)

@@ -10,3 +10,4 @@ class MakeOffer(StatesGroup):
 
 class TakerState(StatesGroup):
     STATE_WEAPON = State()
+    STATE_TAKE_ID = State()
