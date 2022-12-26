@@ -7,6 +7,7 @@ from hashlib import sha1
 from config import DB_USER, DB_PASSWORD, DB_DSN
 from connections.commandprocessors.commandprocessors import TakerCommandProcessor
 from connections.connector import Connector
+from connections.queryprocessors.queryprocessors import OrderQueryProcessor
 
 
 async def process_taker(message: types.Message):
@@ -25,7 +26,6 @@ async def change_weapon(message: types.Message, state: FSMContext):
 async def process_changing(message: types.Message, state: FSMContext):
     weapon = message.text.lower()
     name = sha1(str(message.from_user.id).encode("UTF-8")).hexdigest()
-    # TODO saving weapon with person to db
     conn = Connector(user=DB_USER, password=DB_PASSWORD, dsn=DB_DSN)
     taker_cp = TakerCommandProcessor(conn)
     taker_cp.create(name=name, weapon=weapon)
@@ -37,6 +37,7 @@ async def process_changing(message: types.Message, state: FSMContext):
 
 async def process_take_offer(message: types.Message):
     # TODO write processor for listing and taking an offer
+    await show_offers(message)
     await message.reply(Texts.TAKE_OFFER,
                         reply_markup=ReplyKeyboard.TAKER
                         )
@@ -50,8 +51,17 @@ async def cancel(message: types.Message, state: FSMContext):
 
 
 async def show_offers(message: types.Message):
-    # TODO Show taker offers
-    await message.reply("Ваши заказы:",
+    order_qp = OrderQueryProcessor(Connector(user=DB_USER, password=DB_PASSWORD, dsn=DB_DSN))
+    user_id = sha1(str(message.from_user.id).encode("UTF-8")).hexdigest()
+    orders = order_qp.get_for_taker(user_id=user_id)
+    orders = [f"id: {order[0]}, " 
+              f"victim: {order[2]}, " 
+              f"cost: {order[4]}, " 
+              f"location: {order[5]}, " 
+              f"weapon: {order[6]}"
+              for order in orders]
+    order_string = "\n".join(orders)
+    await message.reply(f"Доступные заказы:\n{order_string}",
                         reply_markup=ReplyKeyboard.CHOOSE_SIDE
                         )
 
@@ -75,4 +85,4 @@ def setup(dp: Dispatcher):
                                 state=TakerState.STATE_WEAPON)
     dp.register_message_handler(show_offers,
                                 text=ReplyKeyboard.Text.show_offers_tk,
-                                content_types=['text'],)
+                                content_types=['text'], )
