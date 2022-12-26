@@ -9,7 +9,8 @@ class ReplyKeyboard:
         be_taker: str = "Хочу стать исполнителем🗡️"
 
         make_offer: str = "Разместить заказ💰"
-        show_offers: str = "Посмотреть заказы🕮"
+        show_offers_mk: str = "Посмотреть заказы🕮"
+        show_offers_tk: str = "Посмотреть заказы📖"
         take_offer: str = "Взять заказ💰"
         change_weapon: str = "Поменять оружие"
 
@@ -20,11 +21,11 @@ class ReplyKeyboard:
         .row(KeyboardButton(Text.be_maker), KeyboardButton(Text.be_taker))
 
     MAKER = ReplyKeyboardMarkup(resize_keyboard=True) \
-        .row(KeyboardButton(Text.make_offer), KeyboardButton(Text.show_offers)) \
+        .row(KeyboardButton(Text.make_offer), KeyboardButton(Text.show_offers_mk)) \
         .row(KeyboardButton(Text.to_menu))
 
     TAKER = ReplyKeyboardMarkup(resize_keyboard=True) \
-        .row(KeyboardButton(Text.take_offer), KeyboardButton(Text.show_offers)) \
+        .row(KeyboardButton(Text.take_offer), KeyboardButton(Text.show_offers_tk)) \
         .row(KeyboardButton(Text.change_weapon), KeyboardButton(Text.to_menu))
 
     CANCEL = ReplyKeyboardMarkup(resize_keyboard=True).add(KeyboardButton(Text.cancel))

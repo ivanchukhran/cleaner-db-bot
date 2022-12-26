@@ -77,6 +77,13 @@ async def cancel(message: types.Message, state: FSMContext):
     await state.finish()
 
 
+async def show_offers(message: types.Message):
+    # TODO Show maker offers
+    await message.reply("Ваши заказы:",
+                        reply_markup=ReplyKeyboard.CHOOSE_SIDE
+                        )
+
+
 def setup(dp: Dispatcher):
     dp.register_message_handler(process_maker,
                                 text=ReplyKeyboard.Text.be_maker,
@@ -100,3 +107,6 @@ def setup(dp: Dispatcher):
     dp.register_message_handler(process_write_offer,
                                 content_types=['text'],
                                 state=MakeOffer.STATE_COST)
+    dp.register_message_handler(show_offers,
+                                text=ReplyKeyboard.Text.show_offers_mk,
+                                content_types=['text'],)

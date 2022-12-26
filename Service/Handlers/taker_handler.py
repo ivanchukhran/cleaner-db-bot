@@ -49,6 +49,13 @@ async def cancel(message: types.Message, state: FSMContext):
     await state.finish()
 
 
+async def show_offers(message: types.Message):
+    # TODO Show taker offers
+    await message.reply("Ваши заказы:",
+                        reply_markup=ReplyKeyboard.CHOOSE_SIDE
+                        )
+
+
 def setup(dp: Dispatcher):
     dp.register_message_handler(process_taker,
                                 text=ReplyKeyboard.Text.be_taker,
@@ -66,3 +73,6 @@ def setup(dp: Dispatcher):
     dp.register_message_handler(process_changing,
                                 content_types=['text'],
                                 state=TakerState.STATE_WEAPON)
+    dp.register_message_handler(show_offers,
+                                text=ReplyKeyboard.Text.show_offers_tk,
+                                content_types=['text'],)
