@@ -21,7 +21,7 @@ async def process_changing(message: types.Message, state: FSMContext):
     weapon = message.text.lower()
     # TODO saving weapon with person to db
     await message.reply(f"Вы выбрали оружие {weapon}, вым будут предложены заказы только с ним",
-                        reply_markup=ReplyKeyboard.CANCEL
+                        reply_markup=ReplyKeyboard.TAKER
                         )
     await state.finish()
 
@@ -54,6 +54,6 @@ def setup(dp: Dispatcher):
                                 text=ReplyKeyboard.Text.cancel,
                                 content_types=['text'],
                                 state="*")
-    dp.register_message_handler(cancel,
+    dp.register_message_handler(process_changing,
                                 content_types=['text'],
                                 state=TakerState.STATE_WEAPON)
