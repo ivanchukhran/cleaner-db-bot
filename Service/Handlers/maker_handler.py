@@ -8,7 +8,7 @@ from hashlib import sha1
 
 from config import DB_DSN, DB_USER, DB_PASSWORD
 from connections.connector import Connector
-from connections.commandprocessors.commandprocessors import MakerCommandProcessor
+from connections.commandprocessors.commandprocessors import MakerCommandProcessor, OrderCommandProcessor
 
 
 async def process_maker(message: types.Message):
@@ -54,6 +54,13 @@ async def process_write_offer(message: types.Message, state: FSMContext):
         cost = int(message.text)
         offer_data = await state.get_data()
         # TODO write offer to database
+        conn = Connector(user=DB_USER, password=DB_PASSWORD, dsn=DB_DSN)
+        order_cp = OrderCommandProcessor(conn)
+        order_cp.create(maker=sha1(str(message.from_user.id).encode("UTF-8")).hexdigest(),
+                        victim=offer_data['name'],
+                        weapon=offer_data['weapon'],
+                        cost=cost,
+                        location=offer_data['location'])
         await message.answer(
             f"Ваш заказ на {offer_data['name']} с использованием {offer_data['weapon']} за {cost} выставлен на рынок",
             reply_markup=ReplyKeyboard.MAKER)
