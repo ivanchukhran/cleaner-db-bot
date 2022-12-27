@@ -82,8 +82,7 @@ async def show_offers(message: types.Message):
     order_qp = OrderQueryProcessor(conn)
     orders = order_qp.get_by_maker(sha1(str(message.from_user.id).encode("UTF-8")).hexdigest())
     if orders:
-        print(orders[0][0])
-    orders = [f"Заказ на {order[0]} за {order[3]}" for order in orders]
+        orders = [f"Заказ {order[0]} на {order[1]} за {order[3]} в состоянии {order[4]}" for order in orders]
     orders_string = "\n".join(orders)
     await message.reply(f"Ваши заказы:\n{orders_string}",
                         reply_markup=ReplyKeyboard.CHOOSE_SIDE
