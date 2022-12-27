@@ -54,7 +54,6 @@ async def process_write_offer(message: types.Message, state: FSMContext):
     if message.text.isnumeric():
         cost = int(message.text)
         offer_data = await state.get_data()
-        # TODO write offer to database
         conn = Connector(user=DB_USER, password=DB_PASSWORD, dsn=DB_DSN)
         order_cp = OrderCommandProcessor(conn)
         order_cp.create(maker=sha1(str(message.from_user.id).encode("UTF-8")).hexdigest(),
@@ -79,7 +78,6 @@ async def cancel(message: types.Message, state: FSMContext):
 
 
 async def show_offers(message: types.Message):
-    # TODO Show maker offers
     conn = Connector(user=DB_USER, password=DB_PASSWORD, dsn=DB_DSN)
     order_qp = OrderQueryProcessor(conn)
     orders = order_qp.get_by_maker(sha1(str(message.from_user.id).encode("UTF-8")).hexdigest())
