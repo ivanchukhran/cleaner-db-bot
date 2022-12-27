@@ -72,16 +72,39 @@ async def process_pass_offer(message: types.Message, state: FSMContext):
 
 
 async def process_passed_offer(message: types.Message, state: FSMContext):
-    # TODO write processor for writing an offer as completed
     await state.finish()
-    await message.reply(Texts.PASSED_OFFER,
-                        reply_markup=ReplyKeyboard.TAKER
-                        )
+    conn = Connector(user=DB_USER, password=DB_PASSWORD, dsn=DB_DSN)
+    order_qp = OrderQueryProcessor(conn)
+    order_cp = OrderCommandProcessor(conn)
+    user_id = sha1(str(message.from_user.id).encode("UTF-8")).hexdigest()
+    available_orders = order_qp.get_by_taker(taker_id=user_id)
+    available_orders_id = [str(order[0]) for order in available_orders]
+    if message.text not in available_orders_id:
+        await message.reply("Неверный id заказа",
+                            reply_markup=ReplyKeyboard.CANCEL
+                            )
+        await cancel(message, state)
+    else:
+        order_id = int(message.text)
+        order_cp.update(id=order_id, **{"taker_id": user_id, "status": 5})
+        await message.reply(Texts.PASSED_OFFER,
+                            reply_markup=ReplyKeyboard.TAKER
+                            )
 
 
 async def show_offers_in_work(message: types.Message, state: FSMContext):
-    # TODO write processor for show offers work with
-    await message.reply("Вы работаете над такими заказами:",
+    conn = Connector(user=DB_USER, password=DB_PASSWORD, dsn=DB_DSN)
+    order_qp = OrderQueryProcessor(conn)
+    user_id = sha1(str(message.from_user.id).encode("UTF-8")).hexdigest()
+    orders = order_qp.get_by_taker(taker_id=user_id)
+    orders = [f"id: {order[0]}, "
+              f"victim: {order[2]}, "
+              f"cost: {order[4]}, "
+              f"location: {order[5]}, "
+              f"weapon: {order[6]}"
+              for order in orders]
+    orders_string = '\n'.join(orders)
+    await message.reply(f"Вы работаете над такими заказами:\n{orders_string}",
                         reply_markup=ReplyKeyboard.TAKER
                         )
 
