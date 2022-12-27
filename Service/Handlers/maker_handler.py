@@ -9,6 +9,7 @@ from hashlib import sha1
 from config import DB_DSN, DB_USER, DB_PASSWORD
 from connections.connector import Connector
 from connections.commandprocessors.commandprocessors import MakerCommandProcessor, OrderCommandProcessor
+from connections.queryprocessors.queryprocessors import OrderQueryProcessor
 
 
 async def process_maker(message: types.Message):
@@ -79,7 +80,14 @@ async def cancel(message: types.Message, state: FSMContext):
 
 async def show_offers(message: types.Message):
     # TODO Show maker offers
-    await message.reply("Ваши заказы:",
+    conn = Connector(user=DB_USER, password=DB_PASSWORD, dsn=DB_DSN)
+    order_qp = OrderQueryProcessor(conn)
+    orders = order_qp.get_by_maker(sha1(str(message.from_user.id).encode("UTF-8")).hexdigest())
+    if orders:
+        print(orders[0][0])
+    orders = [f"Заказ на {order[0]} за {order[3]}" for order in orders]
+    orders_string = "\n".join(orders)
+    await message.reply(f"Ваши заказы:\n{orders_string}",
                         reply_markup=ReplyKeyboard.CHOOSE_SIDE
                         )
 

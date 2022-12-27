@@ -5,7 +5,7 @@ from Service import ReplyKeyboard, Texts
 
 from hashlib import sha1
 from config import DB_USER, DB_PASSWORD, DB_DSN
-from connections.commandprocessors.commandprocessors import TakerCommandProcessor
+from connections.commandprocessors.commandprocessors import TakerCommandProcessor, OrderCommandProcessor
 from connections.connector import Connector
 from connections.queryprocessors.queryprocessors import OrderQueryProcessor
 
@@ -44,7 +44,20 @@ async def process_take_offer(message: types.Message, state: FSMContext):
 
 
 async def process_taked_offer(message: types.Message, state: FSMContext):
-    # TODO write processor for taking an offer
+    conn = Connector(user=DB_USER, password=DB_PASSWORD, dsn=DB_DSN)
+    order_qp = OrderQueryProcessor(conn)
+    user_id = sha1(str(message.from_user.id).encode("UTF-8")).hexdigest()
+    orders = order_qp.get_for_taker(user_id=user_id)
+    orders_id = [str(order[0]) for order in orders]
+    if message.text not in orders_id:
+        await message.reply("Неверный id заказа",
+                            reply_markup=ReplyKeyboard.CANCEL
+                            )
+        await cancel(message, state)
+    else:
+        order_cp = OrderCommandProcessor(conn)
+        order_cp.update(id=int(message.text), **{"taker_id": user_id, "status": 4})
+
     await state.finish()
     await message.reply(Texts.TAKED_OFFER,
                         reply_markup=ReplyKeyboard.TAKER
