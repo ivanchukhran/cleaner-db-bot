@@ -32,19 +32,26 @@ async def process_make_offer(message: types.Message, state: FSMContext):
 async def process_write_name(message: types.Message, state: FSMContext):
     await state.update_data(name=message.text)
     await message.answer("Выберите оружие, которым должен быть выполнен заказ:",
-                         reply_markup=ReplyKeyboard.CANCEL)
+                         reply_markup=ReplyKeyboard.CANCEL_AND_PASS)
     await MakeOffer.STATE_WEAPON.set()
 
 
 async def process_write_weapon(message: types.Message, state: FSMContext):
-    await state.update_data(weapon=message.text)
+    if message.text == ReplyKeyboard.Text.skip:
+        await state.update_data(weapon='ALL')
+    else:
+        await state.update_data(weapon=message.text.lower())
+
     await message.answer("Введите локацию, где это должно произойти:",
-                         reply_markup=ReplyKeyboard.CANCEL)
+                         reply_markup=ReplyKeyboard.CANCEL_AND_PASS)
     await MakeOffer.STATE_ADDRESS.set()
 
 
 async def process_write_location(message: types.Message, state: FSMContext):
-    await state.update_data(location=message.text)
+    if message.text == ReplyKeyboard.Text.skip:
+        await state.update_data(location='ALL')
+    else:
+        await state.update_data(location=message.text)
     await message.answer("Напишите цену, которую готовы заплатить:",
                          reply_markup=ReplyKeyboard.CANCEL)
     await MakeOffer.STATE_COST.set()
