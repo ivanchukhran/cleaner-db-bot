@@ -103,22 +103,26 @@ class OrderCommandProcessor(CommandProcessor):
                                               cost=cost)
 
     def update(self, id: int, *args, **kwargs):
-        if 0 > len(kwargs.values()) or len(kwargs.values()) >= 5:
+        if 0 > len(kwargs.values()) or len(kwargs.values()) >= 6:
             raise ValueError("Invalid number of arguments")
-        if set(kwargs.keys()) - {"maker_id", "victim_id", "cost", "taker_id", "requirement_id"}:
+        if set(kwargs.keys()) - {"maker_id", "victim_id", "cost", "taker_id", "requirement_id", "status"}:
             raise ValueError("Invalid arguments")
         query = "UPDATE ORDERS SET "
+        subquery = []
         if "maker_id" in kwargs:
-            query += "MAKER_ID=:maker_id, "
+            subquery += ["MAKER_ID=:maker_id"]
         if "victim_id" in kwargs:
-            query += "VICTIM_ID=:victim_id, "
+            subquery += ["VICTIM_ID=(SELECT ID FROM VICTIMS WHERE NAME=:victim_id)"]
         if "cost" in kwargs:
-            query += "COST=:cost, "
+            subquery += ["COST=:cost"]
         if "taker_id" in kwargs:
-            query += "TAKER_ID=:taker_id, "
+            subquery += ["TAKER_ID=(SELECT ID FROM TAKERS WHERE NAME=:taker_id)"]
         if "requirement_id" in kwargs:
-            query += "REQUIREMENT_ID=:requirement_id"
-        query += " WHERE ID=:id"
+            subquery += ["REQUIREMENT_ID=:requirement_id"]
+        if "status" in kwargs:
+            subquery += ["STATUS=:status"]
+        query = f"UPDATE ORDERS SET {', '.join(subquery)} WHERE ID=:id"
+        print(query)
         self.connector.execute_without_return(query,
                                               id=id,
                                               **kwargs)

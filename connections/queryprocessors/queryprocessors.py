@@ -65,16 +65,18 @@ class OrderQueryProcessor(QueryProcessor):
     def get_by_id(self, id: int):
         return self.connector.execute("SELECT * FROM ORDERS WHERE ID=:id", id=id)
 
-    def get_by_maker_id(self, maker_id: int):
-        return self.connector.execute("SELECT * FROM ORDERS WHERE MAKER_ID=:maker_id", maker_id=maker_id)
+    def get_by_maker(self, maker_id: str):
+        return self.connector.execute('SELECT * FROM MAKER_ORDER_LIST mol WHERE mol."maker"=:maker', maker_id=maker_id)
 
     def get_by_taker_id(self, taker_id: int):
         return self.connector.execute("SELECT * FROM ORDERS WHERE TAKER_ID=:taker_id", taker_id=taker_id)
 
     def get_for_taker(self, user_id: str):
-        return self.connector.execute('SELECT * FROM ORDERS_VIEW WHERE "weapon"='
+        return self.connector.execute('SELECT * FROM ORDERS_VIEW WHERE ("weapon"='
                                       '(SELECT WEAPON_NAME '
-                                      'FROM TAKER_WEAPON_VIEW WHERE TAKER_NAME=:user_id)', user_id=user_id)
+                                      'FROM TAKER_WEAPON_VIEW WHERE TAKER_NAME=:user_id) OR "weapon" = \'ALL\') '
+                                      'AND "status"=(SELECT NAME FROM STATUSES WHERE ID=3) AND "taker" IS NULL',
+                                      user_id=user_id)
 
     def get_view_by_maker_id(self, maker_id: int):
         return self.connector.execute("SELECT * FROM ORDER_VIEW WHERE MAKER_ID=:maker_id", maker_id=maker_id)
