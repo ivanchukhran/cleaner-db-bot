@@ -120,7 +120,7 @@ class OrderCommandProcessor(CommandProcessor):
         if "requirement_id" in kwargs:
             subquery += ["REQUIREMENT_ID=:requirement_id"]
         if "status" in kwargs:
-            subquery += ["STATUS=:status"]
+            subquery += ["STATUS_ID=:status"]
         query = f"UPDATE ORDERS SET {', '.join(subquery)} WHERE ID=:id"
         print(query)
         self.connector.execute_without_return(query,
