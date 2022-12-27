@@ -66,7 +66,7 @@ class OrderQueryProcessor(QueryProcessor):
         return self.connector.execute("SELECT * FROM ORDERS WHERE ID=:id", id=id)
 
     def get_by_maker(self, maker_id: str):
-        return self.connector.execute('SELECT * FROM MAKER_ORDER_LIST mol WHERE mol."maker"=:maker', maker_id=maker_id)
+        return self.connector.execute('SELECT * FROM MAKER_ORDER_LIST mol WHERE mol."maker"=:maker_id', maker_id=maker_id)
 
     def get_by_taker(self, taker_id: str):
         return self.connector.execute('SELECT * FROM ORDERS_VIEW '
