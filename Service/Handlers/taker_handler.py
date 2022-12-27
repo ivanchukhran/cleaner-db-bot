@@ -64,6 +64,28 @@ async def process_taked_offer(message: types.Message, state: FSMContext):
                         )
 
 
+async def process_pass_offer(message: types.Message, state: FSMContext):
+    await TakerState.STATE_PASS_ID.set()
+    await message.reply(Texts.PASS_OFFER,
+                        reply_markup=ReplyKeyboard.CANCEL
+                        )
+
+
+async def process_passed_offer(message: types.Message, state: FSMContext):
+    # TODO write processor for writing an offer as completed
+    await state.finish()
+    await message.reply(Texts.PASSED_OFFER,
+                        reply_markup=ReplyKeyboard.TAKER
+                        )
+
+
+async def show_offers_in_work(message: types.Message, state: FSMContext):
+    # TODO write processor for show offers work with
+    await message.reply("Вы работаете над такими заказами:",
+                        reply_markup=ReplyKeyboard.TAKER
+                        )
+
+
 async def cancel(message: types.Message, state: FSMContext):
     await message.reply("Отмена",
                         reply_markup=ReplyKeyboard.TAKER
@@ -110,3 +132,12 @@ def setup(dp: Dispatcher):
     dp.register_message_handler(process_taked_offer,
                                 content_types=['text'],
                                 state=TakerState.STATE_TAKE_ID)
+    dp.register_message_handler(process_pass_offer,
+                                text=ReplyKeyboard.Text.pass_offer,
+                                content_types=['text'])
+    dp.register_message_handler(process_passed_offer,
+                                content_types=['text'],
+                                state=TakerState.STATE_PASS_ID)
+    dp.register_message_handler(show_offers_in_work,
+                                text=ReplyKeyboard.Text.work_offers,
+                                content_types=['text'])
